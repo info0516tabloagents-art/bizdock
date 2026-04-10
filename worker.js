@@ -1,13 +1,8 @@
 // ============================================================
 // BizDock - Cloudflare Worker (Claude API Proxy)
 // ============================================================
-// デプロイ手順:
-// 1. https://dash.cloudflare.com にアクセスしてアカウント作成（無料）
-// 2. Workers & Pages → Create Worker
-// 3. 適当な名前をつけて「Deploy」
-// 4. 「Edit code」でこのファイルの内容を貼り付けて「Save and Deploy」
-// 5. 表示されるURL（例: https://bizdock-api.your-name.workers.dev）を
-//    BizDockアプリの「APIプロキシURL」に入力
+// APIキーはCloudflare Secretsに安全に保管されています。
+// クライアント側からキーを送る必要はありません。
 // ============================================================
 
 export default {
@@ -33,10 +28,20 @@ export default {
 
     try {
       const body = await request.json();
-      const { apiKey, model, max_tokens, messages } = body;
+      const { model, max_tokens, messages } = body;
 
-      if (!apiKey || !messages) {
-        return new Response(JSON.stringify({ error: "Missing apiKey or messages" }), {
+      // APIキーはCloudflare Secretsから取得（安全）
+      const apiKey = env.ANTHROPIC_API_KEY;
+
+      if (!apiKey) {
+        return new Response(JSON.stringify({ error: "API key not configured on server" }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+        });
+      }
+
+      if (!messages) {
+        return new Response(JSON.stringify({ error: "Missing messages" }), {
           status: 400,
           headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
         });

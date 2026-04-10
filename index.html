@@ -572,16 +572,7 @@ body {
         <span><strong>C</strong> もう一踏ん張り</span>
         <span><strong>D</strong> 受診をおすすめします</span>
       </div>
-      <details class="settings-toggle">
-        <summary>AI診断コメント設定</summary>
-        <div class="settings-body">
-          <label for="apiUrl">APIプロキシURL</label>
-          <input type="text" id="apiUrl" placeholder="https://your-worker.your-subdomain.workers.dev">
-          <label for="apiKey">Anthropic APIキー</label>
-          <input type="password" id="apiKey" placeholder="sk-ant-...">
-          <p class="hint">※ Claude APIによるAI診断コメントを利用するには、APIプロキシのセットアップが必要です。未設定でも診断は可能です。</p>
-        </div>
-      </details>
+      <!-- AI設定は内部で自動設定済み -->
     </div>
   </div>
 
@@ -891,17 +882,10 @@ let checked = {};
 // ============================================================
 // FUNCTIONS
 // ============================================================
-function saveSettings() {
-  const url = document.getElementById("apiUrl").value;
-  const key = document.getElementById("apiKey").value;
-  if (url) localStorage.setItem("bizdock_apiUrl", url);
-  if (key) localStorage.setItem("bizdock_apiKey", key);
-}
+const BIZDOCK_API_URL = "https://bizdock-api.tadashiroma.workers.dev";
 
-function loadSettings() {
-  document.getElementById("apiUrl").value = localStorage.getItem("bizdock_apiUrl") || "";
-  document.getElementById("apiKey").value = localStorage.getItem("bizdock_apiKey") || "";
-}
+function saveSettings() {}
+function loadSettings() {}
 
 function switchScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -1111,10 +1095,7 @@ async function generateAIComment(res) {
   const body = document.getElementById("aiCommentBody");
   body.innerHTML = `<div class="ai-loading">AI診断コメントを生成中<span class="dots"></span></div>`;
 
-  const apiUrl = localStorage.getItem("bizdock_apiUrl");
-  const apiKey = localStorage.getItem("bizdock_apiKey");
-
-  if (!apiUrl || !apiKey) { body.innerHTML = generateLocalComment(res); return; }
+  const apiUrl = BIZDOCK_API_URL;
 
   const data = CHECKLISTS[currentType];
   let detail = "";
@@ -1154,7 +1135,7 @@ ${detail}
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ apiKey, model: "claude-sonnet-4-20250514", max_tokens: 1500, messages: [{ role: "user", content: prompt }] })
+      body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1500, messages: [{ role: "user", content: prompt }] })
     });
     if (!response.ok) throw new Error(`API Error: ${response.status}`);
     const result = await response.json();
@@ -1202,9 +1183,6 @@ function generateLocalComment(res) {
     comment += `各カテゴリのバランスが取れています。さらなる成長のために、各分野の深掘りを進めましょう。`;
   }
 
-  if (!localStorage.getItem("bizdock_apiUrl")) {
-    comment += `\n\n※ AI設定を行うと、Claude AIによるより詳細な診断コメントが表示されます。`;
-  }
   return comment;
 }
 
