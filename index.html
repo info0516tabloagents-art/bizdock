@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BizDock - かいしゃの健康診断</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+
+:root {
+  --primary: #4CBDD0;
+  --primary-dark: #3AA8BA;
+  --primary-light: #E8F7FA;
+  --primary-pale: #F2FBFC;
+  --accent: #2C3E50;
+  --accent-light: #34495E;
+  --white: #ffffff;
+  --gray-50: #f8fafa;
+  --gray-100: #f0f3f4;
+  --gray-200: #e0e5e7;
+  --gray-300: #c8cfd2;
+  --gray-400: #95a5a6;
+  --gray-500: #7f8c8d;
+  --gray-600: #5a6b6e;
+  --gray-700: #3d4f52;
+  --gray-800: #2c3e40;
+  --success: #27ae60;
+  --danger: #e74c3c;
+  --radius: 12px;
+  --shadow: 0 2px 8px rgba(0,0,0,.06);
+  --shadow-lg: 0 8px 24px rgba(76,189,208,.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', Meiryo, sans-serif;
+  background: var(--primary-light);
+  color: var(--gray-800);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+.container { max-width: 720px; margin: 0 auto; padding: 16px; }
+
+/* ===== CLIPBOARD FRAME ===== */
+.clipboard {
+  background: var(--white);
+  border-radius: 20px;
+  border: 3px solid var(--primary);
+  box-shadow: var(--shadow-lg);
+  margin: 20px auto;
+  max-width: 720px;
+  position: relative;
+  overflow: hidden;
+}
+.clipboard::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 18px;
+  background: var(--gray-300);
+  border-radius: 0 0 10px 10px;
+  z-index: 10;
+}
+
+/* ===== HEADER ===== */
+.app-header {
+  background: var(--primary);
+  padding: 28px 24px 18px;
+  text-align: center;
+  color: white;
+}
+.app-header h1 {
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+.app-header .subtitle {
+  font-size: .85rem;
+  opacity: .9;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+/* Step dots in header */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+  padding: 0 8px;
+}
+.step-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.35);
+  transition: all .3s;
+}
+.step-dot.active { background: white; transform: scale(1.4); box-shadow: 0 0 6px rgba(255,255,255,.5); }
+.step-dot.done { background: rgba(255,255,255,.75); }
+.step-label {
+  font-size: .75rem;
+  opacity: .85;
+  margin-top: 4px;
+  width: 100%;
+  text-align: center;
+}
+
+/* ===== SCREENS ===== */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ===== START SCREEN ===== */
+.start-body { padding: 28px 24px; }
+.start-title {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.start-title h2 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--accent);
+}
+.start-title h2 span { color: var(--primary); }
+.start-title p { color: var(--gray-500); font-size: .88rem; margin-top: 6px; }
+
+.type-buttons { display: flex; flex-direction: column; gap: 10px; }
+.type-btn {
+  background: var(--primary-pale);
+  border: 2px solid var(--primary-light);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  cursor: pointer;
+  text-align: left;
+  transition: all .2s;
+  font-size: .92rem;
+  position: relative;
+  overflow: hidden;
+}
+.type-btn::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 5px;
+  background: var(--primary);
+}
+.type-btn:hover { border-color: var(--primary); background: var(--primary-light); transform: translateX(3px); }
+.type-btn strong { color: var(--primary-dark); display: block; font-size: .95rem; font-weight: 700; }
+.type-btn span { color: var(--gray-500); font-size: .8rem; }
+
+/* Grade legend */
+.grade-legend {
+  margin-top: 20px;
+  padding: 14px 16px;
+  background: var(--gray-50);
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  justify-content: center;
+}
+.grade-legend span {
+  font-size: .78rem;
+  color: var(--gray-600);
+  white-space: nowrap;
+}
+.grade-legend span strong { font-weight: 700; }
+
+/* Settings */
+.settings-toggle {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--gray-200);
+}
+.settings-toggle summary { cursor: pointer; color: var(--gray-400); font-size: .78rem; list-style: none; text-align: center; }
+.settings-toggle summary::-webkit-details-marker { display: none; }
+.settings-toggle .settings-body { margin-top: 10px; }
+.settings-toggle label { display: block; font-size: .78rem; color: var(--gray-500); margin-bottom: 3px; text-align: left; }
+.settings-toggle input {
+  width: 100%; padding: 7px 10px;
+  border: 1px solid var(--gray-200); border-radius: 8px;
+  font-size: .82rem; margin-bottom: 6px;
+}
+.settings-toggle .hint { font-size: .72rem; color: var(--gray-400); text-align: left; }
+
+/* ===== CATEGORY PAGE ===== */
+.category-page { animation: fadeUp .35s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.category-page-header {
+  background: var(--primary);
+  color: white;
+  padding: 14px 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cat-icon {
+  width: 32px; height: 32px;
+  background: rgba(255,255,255,.25);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+.cat-title { font-weight: 700; font-size: 1rem; }
+.cat-subtitle { font-size: .75rem; opacity: .8; font-weight: 400; }
+
+.checklist-body { padding: 0; }
+
+/* Dotted separator lines like the flyer */
+.check-item {
+  display: flex;
+  align-items: center;
+  padding: 13px 22px;
+  gap: 12px;
+  cursor: pointer;
+  transition: background .15s;
+  user-select: none;
+  border-bottom: 1px dashed var(--gray-200);
+}
+.check-item:last-child { border-bottom: none; }
+.check-item:hover { background: var(--primary-pale); }
+.check-item.checked { background: #e8faf0; }
+
+.checkbox {
+  width: 22px; height: 22px;
+  border: 2.5px solid var(--primary);
+  border-radius: 4px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s;
+  background: white;
+}
+.check-item.checked .checkbox {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.checkbox svg {
+  width: 13px; height: 13px;
+  stroke: white;
+  stroke-width: 3;
+  fill: none;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.check-item.checked .checkbox svg { opacity: 1; }
+
+.check-item .question {
+  flex: 1;
+  font-size: .88rem;
+  color: var(--gray-700);
+}
+.check-item.checked .question { color: var(--accent); font-weight: 500; }
+
+/* Hint tooltip */
+.hint-icon {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--gray-200);
+  color: var(--gray-500);
+  font-size: .68rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: help;
+  position: relative;
+  transition: all .2s;
+  line-height: 1;
+}
+.hint-icon:hover { background: var(--primary); color: white; }
+.hint-bubble {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: -8px;
+  background: var(--accent);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: .78rem;
+  font-weight: 400;
+  line-height: 1.5;
+  width: 250px;
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+  pointer-events: none;
+}
+.hint-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 14px;
+  border: 6px solid transparent;
+  border-top-color: var(--accent);
+}
+.hint-icon:hover .hint-bubble,
+.hint-icon.active .hint-bubble { display: block; }
+
+/* Nav buttons */
+.nav-area { padding: 16px 22px 20px; }
+.checklist-hint {
+  text-align: center;
+  color: var(--gray-400);
+  font-size: .78rem;
+  margin-bottom: 12px;
+}
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.btn {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 30px;
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: inherit;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(76,189,208,.3); }
+.btn-secondary { background: var(--white); color: var(--gray-600); border: 2px solid var(--gray-200); }
+.btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+
+/* ===== RESULTS ===== */
+.result-hero {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  padding: 30px 24px;
+  text-align: center;
+}
+.grade-circle {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  border: 4px solid white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+.grade-letter { font-size: 2.8rem; font-weight: 900; line-height: 1; }
+.grade-percent { font-size: .95rem; opacity: .9; }
+.result-hero h2 { font-size: 1.15rem; margin-bottom: 4px; font-weight: 700; }
+.result-hero p { opacity: .85; font-size: .85rem; }
+
+.result-section { padding: 20px 22px; border-top: 1px dashed var(--gray-200); }
+.result-section h3 {
+  font-size: .92rem;
+  margin-bottom: 14px;
+  color: var(--primary-dark);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.result-section h3::before {
+  content: '';
+  width: 4px; height: 18px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+.chart-container { position: relative; max-height: 320px; margin: 0 auto; }
+
+/* Category bars */
+.category-result { margin-bottom: 14px; }
+.category-result-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: .82rem;
+  margin-bottom: 3px;
+}
+.category-result-header .name { font-weight: 600; color: var(--gray-700); }
+.category-result-header .score { color: var(--gray-400); }
+.bar-bg {
+  background: var(--gray-100);
+  height: 22px;
+  border-radius: 11px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 11px;
+  transition: width 1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  font-size: .68rem;
+  color: white;
+  font-weight: 700;
+  min-width: 0;
+}
+
+/* AI Comment */
+.ai-comment {
+  padding: 20px 22px;
+  border-top: 1px dashed var(--gray-200);
+}
+.ai-comment h3 {
+  color: var(--primary-dark);
+  font-size: .92rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ai-comment h3::before {
+  content: '';
+  width: 4px; height: 18px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+.ai-comment .comment-body {
+  font-size: .85rem;
+  line-height: 1.8;
+  color: var(--gray-700);
+  white-space: pre-wrap;
+  background: var(--primary-pale);
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid var(--primary-light);
+}
+.ai-loading { text-align: center; padding: 20px; color: var(--gray-400); }
+.ai-loading .dots::after { content: ''; animation: dots 1.5s infinite; }
+@keyframes dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
+}
+
+/* Action buttons */
+.action-buttons {
+  display: flex; gap: 10px;
+  padding: 0 22px 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ===== FOOTER ===== */
+.app-footer {
+  background: var(--accent);
+  color: white;
+  padding: 16px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-radius: 0 0 17px 17px;
+  margin-top: 10px;
+}
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.footer-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.footer-logo .prism-logo-svg {
+  width: 60px;
+  height: 70px;
+}
+.footer-info {
+  font-size: .68rem;
+  line-height: 1.5;
+  opacity: .8;
+}
+.footer-contact {
+  text-align: right;
+}
+.footer-contact .phone {
+  font-size: .85rem;
+  font-weight: 700;
+}
+.footer-contact .email {
+  font-size: .7rem;
+  opacity: .8;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  body { padding: 8px; }
+  .clipboard { margin: 8px auto; border-radius: 16px; }
+  .app-header { padding: 24px 16px 14px; }
+  .app-header h1 { font-size: 1.4rem; }
+  .start-body { padding: 20px 16px; }
+  .check-item { padding: 11px 16px; gap: 10px; }
+  .check-item .question { font-size: .82rem; }
+  .nav-area { padding: 14px 16px 18px; }
+  .btn { padding: 10px 20px; font-size: .85rem; }
+  .grade-circle { width: 90px; height: 90px; }
+  .grade-letter { font-size: 2.2rem; }
+  .result-hero { padding: 24px 16px; }
+  .result-section, .ai-comment { padding: 16px; }
+  .action-buttons { padding: 0 16px 20px; }
+  .hint-bubble { right: -4px; width: 210px; font-size: .73rem; }
+  .app-footer { padding: 12px 16px; border-radius: 0 0 13px 13px; }
+  .footer-contact .phone { font-size: .78rem; }
+}
+
+/* ===== PRINT ===== */
+@media print {
+  body { background: white; }
+  .clipboard { border: none; box-shadow: none; }
+  .clipboard::before { display: none; }
+  .nav-area, .action-buttons, .settings-toggle { display: none !important; }
+  .screen { display: block !important; }
+  #screen-start, #screen-checklist { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="clipboard">
+  <!-- HEADER -->
+  <div class="app-header">
+    <h1>BizDock</h1>
+    <p class="subtitle">かいしゃの健康診断</p>
+    <div class="step-indicator" id="stepIndicator" style="display:none"></div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div class="screen active" id="screen-start">
+    <div class="start-body">
+      <div class="start-title">
+        <h2><span>あなたの会社</span>を診断しましょう</h2>
+        <p>該当するタイプを選んでください</p>
+      </div>
+      <div class="type-buttons">
+        <button class="type-btn" onclick="startChecklist('A')">
+          <strong>タイプA：従業員がいる</strong>
+          <span>従業員を雇用している企業向け（52問）</span>
+        </button>
+        <button class="type-btn" onclick="startChecklist('B')">
+          <strong>タイプB：従業員はいないが、採用したい</strong>
+          <span>今後の採用を検討中の企業向け（46問）</span>
+        </button>
+        <button class="type-btn" onclick="startChecklist('C')">
+          <strong>タイプC：従業員はおらず、採用予定もない</strong>
+          <span>個人事業・一人経営者向け（38問）</span>
+        </button>
+      </div>
+      <div class="grade-legend">
+        <span><strong>A</strong> 素晴らしいです</span>
+        <span><strong>B</strong> あと少し</span>
+        <span><strong>C</strong> もう一踏ん張り</span>
+        <span><strong>D</strong> 受診をおすすめします</span>
+      </div>
+      <details class="settings-toggle">
+        <summary>AI診断コメント設定</summary>
+        <div class="settings-body">
+          <label for="apiUrl">APIプロキシURL</label>
+          <input type="text" id="apiUrl" placeholder="https://your-worker.your-subdomain.workers.dev">
+          <label for="apiKey">Anthropic APIキー</label>
+          <input type="password" id="apiKey" placeholder="sk-ant-...">
+          <p class="hint">※ Claude APIによるAI診断コメントを利用するには、APIプロキシのセットアップが必要です。未設定でも診断は可能です。</p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- CHECKLIST SCREEN -->
+  <div class="screen" id="screen-checklist">
+    <div id="checklistContent"></div>
+    <div class="nav-area">
+      <p class="checklist-hint">該当する項目にチェックを入れてください</p>
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" id="prevBtn" onclick="prevCategory()">戻る</button>
+        <button class="btn btn-primary" id="nextBtn" onclick="nextCategory()">次へ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="screen" id="screen-result">
+    <div class="result-hero" id="resultHero"></div>
+    <div class="result-section">
+      <h3>カテゴリ別スコア</h3>
+      <div id="categoryBars"></div>
+    </div>
+    <div class="result-section">
+      <h3>レーダーチャート</h3>
+      <div class="chart-container">
+        <canvas id="radarChart"></canvas>
+      </div>
+    </div>
+    <div class="ai-comment">
+      <h3>AI診断コメント</h3>
+      <div class="comment-body" id="aiCommentBody">
+        <div class="ai-loading">分析中<span class="dots"></span></div>
+      </div>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-secondary" onclick="goToStart()">最初からやり直す</button>
+      <button class="btn btn-primary" onclick="window.print()">結果を印刷</button>
+    </div>
+    <!-- FOOTER (結果画面のみ表示) -->
+    <div class="app-footer">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <svg class="prism-logo-svg" viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="60,5 115,100 5,100" fill="#2C3E50" stroke="#2C3E50" stroke-width="2"/>
+            <polygon points="60,12 108,95 12,95" fill="#3B5998"/>
+            <polygon points="60,12 35,60 20,95 12,95" fill="#4A90D9"/>
+            <polygon points="20,95 35,60 50,95" fill="#2ECC71"/>
+            <polygon points="35,60 60,12 55,55" fill="#F39C12"/>
+            <polygon points="35,60 55,55 50,95" fill="#E67E22"/>
+            <polygon points="55,55 60,12 80,55" fill="#5DADE2"/>
+            <polygon points="55,55 80,55 70,95 50,95" fill="#45B39D"/>
+            <polygon points="80,55 108,95 70,95" fill="#3B5998"/>
+            <text x="60" y="130" text-anchor="middle" font-family="'Georgia','Times New Roman',serif" font-size="22" font-weight="bold" fill="#2C3E50" letter-spacing="4">PRISM</text>
+          </svg>
+        </div>
+        <div class="footer-info">
+          プリズム社<br>
+          愛知県名古屋市中区栄2-2-1<br>
+          広小路伏見中駒ビル6A
+        </div>
+      </div>
+      <div class="footer-contact">
+        <div class="phone">090-6572-3844 (城間)</div>
+        <div class="email">info-t@tabloagents.com</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CATEGORY DISPLAY NAMES (科 style)
+// ============================================================
+const CAT_DISPLAY = {
+  "経営方針・戦略": { icon: "📋", dept: "ビジョン科" },
+  "財務・資金繰り": { icon: "💰", dept: "ファイナンス科" },
+  "営業・マーケティング": { icon: "📢", dept: "マーケティング科" },
+  "組織・人材": { icon: "👥", dept: "マネジメント科" },
+  "業務プロセス・効率": { icon: "⚙️", dept: "オペレーション科" },
+  "リスク管理・法令遵守": { icon: "🛡️", dept: "コンプライアンス科" },
+  "コミュニケーション": { icon: "💬", dept: "コミュニケーション科" }
+};
+
+// ============================================================
+// DATA
+// ============================================================
+const CHECKLISTS = {
+  A: {
+    name: "タイプA：従業員がいる",
+    categories: [
+      { name: "経営方針・戦略", items: [
+        { q: "経営理念（ミッション）を言語化しているか", pt: 3, hint: "ミッション＝「自社が何のために存在するか」を表す言葉。例：「地域の中小企業を元気にする」" },
+        { q: "ビジョンを言語化しているか", pt: 3, hint: "ビジョン＝「将来こうなりたい」という理想の姿。例：「5年後に県内No.1のシェアを獲得する」" },
+        { q: "バリューを言語化しているか", pt: 3, hint: "バリュー＝「大切にする価値観・行動指針」。例：「誠実・スピード・挑戦」" },
+        { q: "目標（売上・利益・顧客数など）が具体的に設定されているか", pt: 3 },
+        { q: "目標に期限を設定しているか", pt: 3 },
+        { q: "KPIを設定しているか", pt: 3, hint: "KPI（重要業績評価指標）＝目標達成の進捗を測る数値。例：月間問い合わせ数、成約率、客単価など" },
+        { q: "直近5年の経営計画を立てているか", pt: 1, hint: "中期経営計画のこと。売上・利益・投資・採用などの5年間のロードマップ" }
+      ]},
+      { name: "財務・資金繰り", items: [
+        { q: "財務諸表の読み取りに自信があるか", pt: 2, hint: "財務諸表＝貸借対照表（B/S）、損益計算書（P/L）、キャッシュフロー計算書の3つ" },
+        { q: "損益計算書を毎月振り返っているか", pt: 3, hint: "P/L（Profit & Loss）＝売上・経費・利益をまとめた表。月次で確認することで早期に課題を発見できます" },
+        { q: "貸借対照表を定期的に確認しているか", pt: 2, hint: "B/S（Balance Sheet）＝資産・負債・純資産のバランスを示す表。会社の財政状態がわかります" },
+        { q: "自己資本比率が30％以上か", pt: 2, hint: "自己資本比率 ＝ 純資産 ÷ 総資産 × 100。30%以上が健全の目安。高いほど倒産リスクが低い" },
+        { q: "資金調達の方法が２つ以上あるか", pt: 1, hint: "例：銀行融資、日本政策金融公庫、補助金・助成金、クラウドファンディング、出資など" },
+        { q: "金融資産を保有しているか", pt: 1, hint: "預貯金・株式・投資信託・債券など、換金可能な資産のこと" },
+        { q: "会社の資産と個人の資産を切り分けているか", pt: 1 }
+      ]},
+      { name: "営業・マーケティング", items: [
+        { q: "ブランディング・コンセプトを設定しているか", pt: 1, hint: "「お客様にどう思われたいか」を一言で表した方針。例：「親しみやすく頼れる専門家」" },
+        { q: "ブランディング・コンセプトをデザインとして反映しているか", pt: 1, hint: "ロゴ・名刺・ウェブサイト・店舗デザインなどにコンセプトが統一的に反映されているか" },
+        { q: "ベストクライアントを言語化しているか", pt: 3, hint: "最も理想的な顧客像のこと。年齢・業種・課題・価値観などを具体的に定義する" },
+        { q: "顧客のニーズを言語化できているか", pt: 2 },
+        { q: "営業に従事している従業員が２名以上いるか", pt: 1 },
+        { q: "リピーター獲得の仕組みがあるか", pt: 1, hint: "例：ポイントカード、定期フォロー、ニュースレター、会員制度など" },
+        { q: "新規顧客獲得のチャネルを３つ以上持っているか", pt: 1, hint: "チャネル例：紹介、Web広告、SNS、展示会、飛び込み、DM、セミナーなど" },
+        { q: "商品やサービスの魅力を伝える方法（広告・SNS・紹介）があるか", pt: 1 },
+        { q: "競合との差別化ポイントを言語化できているか", pt: 2 },
+        { q: "顧客満足度についての統計をとっているか", pt: 2, hint: "アンケート・口コミ・NPS（推奨度スコア）などで定期的に計測しているか" },
+        { q: "地域の事業者の会に所属しているか", pt: 1, hint: "例：商工会議所、法人会、業界団体、異業種交流会、BNIなど" }
+      ]},
+      { name: "組織・人材", items: [
+        { q: "採用マニュアルがあるか", pt: 2, hint: "求人票の作り方、面接の進め方、評価基準、採用フローなどを文書化したもの" },
+        { q: "組織図があるか", pt: 1 },
+        { q: "社員やスタッフの役割・責任がリスト化されているか", pt: 2, hint: "職務記述書（ジョブディスクリプション）のこと。誰が何を担当し、どこまで責任を持つか" },
+        { q: "人材教育についての取り組みを実施しているか", pt: 1 },
+        { q: "従業員の評価基準があるか", pt: 2, hint: "成果・プロセス・行動などの観点で、何をどう評価するかを明文化した基準" },
+        { q: "月に１度以上従業員との１on１の機会を設けているか", pt: 2, hint: "1on1＝上司と部下が1対1で行う定期面談。業務の進捗だけでなく、悩みやキャリアについても話す場" },
+        { q: "従業員の労働時間を把握しているか", pt: 2 },
+        { q: "昇給制度を設けているか", pt: 1 },
+        { q: "退職金制度を活用しているか", pt: 1, hint: "中小企業退職金共済（中退共）や確定拠出年金（iDeCo+）など、中小企業でも導入できる制度があります" }
+      ]},
+      { name: "業務プロセス・効率", items: [
+        { q: "業務マニュアルがあるか", pt: 2 },
+        { q: "DXについての取り組みをしているか", pt: 1, hint: "DX（デジタルトランスフォーメーション）＝ITツールを活用して業務や事業を変革すること。例：クラウド会計、電子契約、チャットツール導入など" },
+        { q: "顧客データが誰もがアクセスできる環境に管理されているか", pt: 1, hint: "CRM（顧客管理システム）やスプレッドシートなどで、担当者以外もアクセスできる状態" },
+        { q: "コミュニケーションツールが統一されている", pt: 2, hint: "社内連絡がメール・LINE・電話・口頭などバラバラだと情報が散逸します。Slack、Chatwork、Teamsなどに統一を" }
+      ]},
+      { name: "リスク管理・法令遵守", items: [
+        { q: "商取引契約書・規約などを整備しているか", pt: 2 },
+        { q: "雇用契約書・規約などを整備しているか", pt: 2 },
+        { q: "顧問税理士がいるか", pt: 2 },
+        { q: "顧問社労士がいるか", pt: 1, hint: "社会保険労務士＝労務管理・社会保険手続き・就業規則作成などの専門家" },
+        { q: "顧問弁護士がいるか", pt: 1 },
+        { q: "災害やトラブルへの備え（損害保険）があるか", pt: 2, hint: "火災保険、賠償責任保険、サイバー保険など、事業リスクに応じた保険の加入" },
+        { q: "代表不在時の事業運営資金を調達する手段があるか", pt: 1, hint: "代表が病気・事故で不在になった場合に備えた資金確保。経営者保険や事業承継対策など" },
+        { q: "クレーム対応の窓口があるか", pt: 1 }
+      ]},
+      { name: "コミュニケーション", items: [
+        { q: "目的（何のための連絡か）を最初に明確に伝えている", pt: 3, hint: "「報告」「相談」「依頼」「共有」など、連絡の目的を冒頭に明示する習慣" },
+        { q: "依頼や相談には、締切（いつまでに）が含まれている", pt: 3 },
+        { q: "担当者が明確に示されている", pt: 3 },
+        { q: "受け手の背景を理解して伝えている", pt: 2, hint: "相手の知識レベルや立場を考慮して、伝え方や情報量を調整しているか" },
+        { q: "重要な決定は議事録をとっている", pt: 3 },
+        { q: "会議の前に、アジェンダ（話すこと）が共有されている", pt: 3, hint: "アジェンダ＝会議の議題・目的・時間配分を事前に共有すること。会議の質と効率が大幅に向上します" },
+        { q: "指摘やフィードバックは、人格ではなく行動・事実に向けた表現になっている", pt: 2, hint: "×「あなたはだらしない」→ ○「提出期限が2日遅れています」のように事実ベースで伝える" },
+        { q: "従業員の個人的な夢や目標を知っている", pt: 2 }
+      ]}
+    ]
+  },
+  B: {
+    name: "タイプB：従業員なし・採用希望",
+    categories: [
+      { name: "経営方針・戦略", items: [
+        { q: "経営理念（ミッション）を言語化しているか", pt: 3, hint: "ミッション＝「自社が何のために存在するか」を表す言葉。例：「地域の中小企業を元気にする」" },
+        { q: "ビジョンを言語化しているか", pt: 3, hint: "ビジョン＝「将来こうなりたい」という理想の姿。例：「5年後に県内No.1のシェアを獲得する」" },
+        { q: "バリューを言語化しているか", pt: 3, hint: "バリュー＝「大切にする価値観・行動指針」。例：「誠実・スピード・挑戦」" },
+        { q: "目標（売上・利益・顧客数など）が具体的に設定されているか", pt: 3 },
+        { q: "目標に期限を設定しているか", pt: 3 },
+        { q: "KPIを設定しているか", pt: 3, hint: "KPI（重要業績評価指標）＝目標達成の進捗を測る数値。例：月間問い合わせ数、成約率、客単価など" },
+        { q: "直近5年の経営計画を立てているか", pt: 2, hint: "中期経営計画のこと。売上・利益・投資・採用などの5年間のロードマップ" }
+      ]},
+      { name: "財務・資金繰り", items: [
+        { q: "財務諸表の読み取りに自信があるか", pt: 2, hint: "財務諸表＝貸借対照表（B/S）、損益計算書（P/L）、キャッシュフロー計算書の3つ" },
+        { q: "損益計算書を毎月振り返っているか", pt: 3, hint: "P/L（Profit & Loss）＝売上・経費・利益をまとめた表。月次で確認することで早期に課題を発見できます" },
+        { q: "貸借対照表を定期的に確認しているか", pt: 2, hint: "B/S（Balance Sheet）＝資産・負債・純資産のバランスを示す表。会社の財政状態がわかります" },
+        { q: "自己資本比率が30％以上か", pt: 2, hint: "自己資本比率 ＝ 純資産 ÷ 総資産 × 100。30%以上が健全の目安。高いほど倒産リスクが低い" },
+        { q: "資金調達の方法が２つ以上あるか", pt: 1, hint: "例：銀行融資、日本政策金融公庫、補助金・助成金、クラウドファンディング、出資など" },
+        { q: "金融資産を保有しているか", pt: 1, hint: "預貯金・株式・投資信託・債券など、換金可能な資産のこと" },
+        { q: "会社の資産と個人の資産を切り分けているか", pt: 1 }
+      ]},
+      { name: "営業・マーケティング", items: [
+        { q: "ブランディング・コンセプトを設定しているか", pt: 2, hint: "「お客様にどう思われたいか」を一言で表した方針。例：「親しみやすく頼れる専門家」" },
+        { q: "ブランディング・コンセプトをデザインとして反映しているか", pt: 1, hint: "ロゴ・名刺・ウェブサイト・店舗デザインなどにコンセプトが統一的に反映されているか" },
+        { q: "ベストクライアントを言語化しているか", pt: 3, hint: "最も理想的な顧客像のこと。年齢・業種・課題・価値観などを具体的に定義する" },
+        { q: "顧客のニーズを言語化できているか", pt: 2 },
+        { q: "リピーター獲得の仕組みがあるか", pt: 2, hint: "例：ポイントカード、定期フォロー、ニュースレター、会員制度など" },
+        { q: "新規顧客獲得のチャネルを３つ以上持っているか", pt: 2, hint: "チャネル例：紹介、Web広告、SNS、展示会、飛び込み、DM、セミナーなど" },
+        { q: "商品やサービスの魅力を伝える方法（広告・SNS・紹介）があるか", pt: 3 },
+        { q: "競合との差別化ポイントを言語化できているか", pt: 3 },
+        { q: "顧客満足度についての統計をとっているか", pt: 2, hint: "アンケート・口コミ・NPS（推奨度スコア）などで定期的に計測しているか" },
+        { q: "地域の事業者の会に所属しているか", pt: 3, hint: "例：商工会議所、法人会、業界団体、異業種交流会、BNIなど" }
+      ]},
+      { name: "組織・人材", items: [
+        { q: "採用マニュアルがあるか", pt: 3, hint: "求人票の作り方、面接の進め方、評価基準、採用フローなどを文書化したもの" },
+        { q: "組織図があるか", pt: 1 },
+        { q: "社員やスタッフの役割・責任がリスト化されているか", pt: 2, hint: "職務記述書（ジョブディスクリプション）のこと。誰が何を担当し、どこまで責任を持つか" },
+        { q: "人材教育についての取り組みを準備しているか", pt: 1 },
+        { q: "従業員の評価基準を準備しているか", pt: 1, hint: "成果・プロセス・行動などの観点で、何をどう評価するかを明文化した基準" }
+      ]},
+      { name: "業務プロセス・効率", items: [
+        { q: "業務マニュアルがあるか", pt: 2 },
+        { q: "DXについての取り組みをしているか", pt: 1, hint: "DX（デジタルトランスフォーメーション）＝ITツールを活用して業務や事業を変革すること。例：クラウド会計、電子契約、チャットツール導入など" },
+        { q: "顧客データが誰もがアクセスできる環境に管理されているか", pt: 1, hint: "CRM（顧客管理システム）やスプレッドシートなどで、担当者以外もアクセスできる状態" },
+        { q: "コミュニケーションツールが統一されている", pt: 3, hint: "社内連絡がメール・LINE・電話・口頭などバラバラだと情報が散逸します。Slack、Chatwork、Teamsなどに統一を" }
+      ]},
+      { name: "リスク管理・法令遵守", items: [
+        { q: "商取引契約書・規約などを整備しているか", pt: 3 },
+        { q: "雇用契約書・規約などを整備しているか", pt: 2 },
+        { q: "顧問税理士がいるか", pt: 2 },
+        { q: "顧問弁護士がいるか", pt: 1 },
+        { q: "災害やトラブルへの備え（損害保険）があるか", pt: 1, hint: "火災保険、賠償責任保険、サイバー保険など、事業リスクに応じた保険の加入" },
+        { q: "代表不在時の事業運営資金を調達する手段があるか", pt: 1, hint: "代表が病気・事故で不在になった場合に備えた資金確保。経営者保険や事業承継対策など" },
+        { q: "クレーム対応の窓口があるか", pt: 1 },
+        { q: "事業を把握している緊急連絡先を設けているか（秘書）", pt: 3, hint: "万一の際に事業状況を把握し、対応できる人（家族・パートナー・士業など）の連絡先を整備" }
+      ]},
+      { name: "コミュニケーション", items: [
+        { q: "目的（何のための連絡か）を最初に明確に伝えている", pt: 3, hint: "「報告」「相談」「依頼」「共有」など、連絡の目的を冒頭に明示する習慣" },
+        { q: "依頼や相談には、締切（いつまでに）が含まれている", pt: 3 },
+        { q: "受け手の背景を理解して伝えている", pt: 2, hint: "相手の知識レベルや立場を考慮して、伝え方や情報量を調整しているか" },
+        { q: "重要な決定は議事録をとっている", pt: 3 },
+        { q: "会議の前に、アジェンダ（話すこと）が共有されている", pt: 3, hint: "アジェンダ＝会議の議題・目的・時間配分を事前に共有すること。会議の質と効率が大幅に向上します" },
+        { q: "指摘やフィードバックは、人格ではなく行動・事実に向けた表現になっている", pt: 2, hint: "×「あなたはだらしない」→ ○「提出期限が2日遅れています」のように事実ベースで伝える" }
+      ]}
+    ]
+  },
+  C: {
+    name: "タイプC：従業員なし・一人経営",
+    categories: [
+      { name: "経営方針・戦略", items: [
+        { q: "経営理念（ミッション）を言語化しているか", pt: 3, hint: "ミッション＝「自社が何のために存在するか」を表す言葉。例：「地域の中小企業を元気にする」" },
+        { q: "ビジョンを言語化しているか", pt: 3, hint: "ビジョン＝「将来こうなりたい」という理想の姿。例：「5年後に県内No.1のシェアを獲得する」" },
+        { q: "バリューを言語化しているか", pt: 3, hint: "バリュー＝「大切にする価値観・行動指針」。例：「誠実・スピード・挑戦」" },
+        { q: "目標（売上・利益・顧客数など）が具体的に設定されているか", pt: 3 },
+        { q: "目標に期限を設定しているか", pt: 3 },
+        { q: "KPIを設定しているか", pt: 3, hint: "KPI（重要業績評価指標）＝目標達成の進捗を測る数値。例：月間問い合わせ数、成約率、客単価など" },
+        { q: "直近5年の経営計画を立てているか", pt: 2, hint: "中期経営計画のこと。売上・利益・投資・採用などの5年間のロードマップ" }
+      ]},
+      { name: "財務・資金繰り", items: [
+        { q: "財務諸表の読み取りに自信があるか", pt: 2, hint: "財務諸表＝貸借対照表（B/S）、損益計算書（P/L）、キャッシュフロー計算書の3つ" },
+        { q: "損益計算書を毎月振り返っているか", pt: 3, hint: "P/L（Profit & Loss）＝売上・経費・利益をまとめた表。月次で確認することで早期に課題を発見できます" },
+        { q: "貸借対照表を定期的に確認しているか", pt: 3, hint: "B/S（Balance Sheet）＝資産・負債・純資産のバランスを示す表。会社の財政状態がわかります" },
+        { q: "自己資本比率が30％以上か", pt: 3, hint: "自己資本比率 ＝ 純資産 ÷ 総資産 × 100。30%以上が健全の目安。高いほど倒産リスクが低い" },
+        { q: "資金調達の方法が２つ以上あるか", pt: 2, hint: "例：銀行融資、日本政策金融公庫、補助金・助成金、クラウドファンディング、出資など" },
+        { q: "金融資産を保有しているか", pt: 2, hint: "預貯金・株式・投資信託・債券など、換金可能な資産のこと" },
+        { q: "会社の資産と個人の資産を切り分けているか", pt: 1 }
+      ]},
+      { name: "営業・マーケティング", items: [
+        { q: "ブランディング・コンセプトを設定しているか", pt: 2, hint: "「お客様にどう思われたいか」を一言で表した方針。例：「親しみやすく頼れる専門家」" },
+        { q: "ブランディング・コンセプトをデザインとして反映しているか", pt: 2, hint: "ロゴ・名刺・ウェブサイト・店舗デザインなどにコンセプトが統一的に反映されているか" },
+        { q: "ベストクライアントを言語化しているか", pt: 3, hint: "最も理想的な顧客像のこと。年齢・業種・課題・価値観などを具体的に定義する" },
+        { q: "顧客のニーズを言語化できているか", pt: 3 },
+        { q: "リピーター獲得の仕組みがあるか", pt: 3, hint: "例：ポイントカード、定期フォロー、ニュースレター、会員制度など" },
+        { q: "新規顧客獲得のチャネルを３つ以上持っているか", pt: 2, hint: "チャネル例：紹介、Web広告、SNS、展示会、飛び込み、DM、セミナーなど" },
+        { q: "商品やサービスの魅力を伝える方法（広告・SNS・紹介）があるか", pt: 2 },
+        { q: "これまでの実績をまとめているか", pt: 2, hint: "ポートフォリオや実績一覧のこと。案件数・顧客の声・ビフォーアフターなどをまとめたもの" },
+        { q: "競合との差別化ポイントを言語化できているか", pt: 3 },
+        { q: "顧客満足度についての統計をとっているか", pt: 2, hint: "アンケート・口コミ・NPS（推奨度スコア）などで定期的に計測しているか" },
+        { q: "地域の事業者の会に所属しているか", pt: 2, hint: "例：商工会議所、法人会、業界団体、異業種交流会、BNIなど" }
+      ]},
+      { name: "業務プロセス・効率", items: [
+        { q: "DXについての取り組みをしているか", pt: 2, hint: "DX（デジタルトランスフォーメーション）＝ITツールを活用して業務や事業を変革すること。例：クラウド会計、電子契約、チャットツール導入など" },
+        { q: "顧客データが誰もがアクセスできる環境に管理されているか", pt: 1, hint: "CRM（顧客管理システム）やスプレッドシートなどで、担当者以外もアクセスできる状態" },
+        { q: "コミュニケーションツールが統一されている", pt: 3, hint: "連絡がメール・LINE・電話・口頭などバラバラだと情報が散逸します。ツールを統一しましょう" }
+      ]},
+      { name: "リスク管理・法令遵守", items: [
+        { q: "商取引契約書・規約などを整備しているか", pt: 3 },
+        { q: "顧問税理士がいるか", pt: 3 },
+        { q: "顧問弁護士がいるか", pt: 1 },
+        { q: "災害やトラブルへの備え（損害保険）があるか", pt: 3, hint: "火災保険、賠償責任保険、サイバー保険など、事業リスクに応じた保険の加入" },
+        { q: "代表不在時の事業運営資金を調達する手段があるか", pt: 2, hint: "代表が病気・事故で不在になった場合に備えた資金確保。経営者保険や事業承継対策など" },
+        { q: "クレーム対応の窓口があるか", pt: 1 },
+        { q: "事業を把握している緊急連絡先を設けているか（秘書）", pt: 3, hint: "万一の際に事業状況を把握し、対応できる人（家族・パートナー・士業など）の連絡先を整備" }
+      ]},
+      { name: "コミュニケーション", items: [
+        { q: "目的（何のための連絡か）を最初に明確に伝えている", pt: 3, hint: "「報告」「相談」「依頼」「共有」など、連絡の目的を冒頭に明示する習慣" },
+        { q: "依頼や相談には、締切（いつまでに）が含まれている", pt: 3 },
+        { q: "受け手の背景を理解して伝えている", pt: 2, hint: "相手の知識レベルや立場を考慮して、伝え方や情報量を調整しているか" },
+        { q: "重要な決定は議事録をとっている", pt: 3 },
+        { q: "会議の前に、アジェンダ（話すこと）が共有されている", pt: 3, hint: "アジェンダ＝会議の議題・目的・時間配分を事前に共有すること。会議の質と効率が大幅に向上します" },
+        { q: "指摘やフィードバックは、人格ではなく行動・事実に向けた表現になっている", pt: 2, hint: "×「あなたはだらしない」→ ○「提出期限が2日遅れています」のように事実ベースで伝える" }
+      ]}
+    ]
+  }
+};
+
+const GRADES = [
+  { letter: "A", min: 80, color: "#27ae60", label: "素晴らしい経営状態です！" },
+  { letter: "B", min: 60, color: "#4CBDD0", label: "良好な状態です。さらなる成長が見込めます。" },
+  { letter: "C", min: 40, color: "#f39c12", label: "もう一踏ん張り！重点項目に取り組みましょう。" },
+  { letter: "D", min: 20, color: "#e67e22", label: "受診をおすすめします。優先順位をつけて改善しましょう。" },
+  { letter: "E", min: 10, color: "#e74c3c", label: "早急な対策が必要です。専門家への相談も検討してください。" },
+  { letter: "F", min: 0,  color: "#c0392b", label: "基盤づくりから始めましょう。まずは経営方針の整備から。" }
+];
+
+const CATEGORY_COLORS = [
+  "#4CBDD0", "#27ae60", "#f39c12", "#9b59b6", "#e74c3c", "#1abc9c", "#e67e22"
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentType = null;
+let currentCatIdx = 0;
+let checked = {};
+
+// ============================================================
+// FUNCTIONS
+// ============================================================
+function saveSettings() {
+  const url = document.getElementById("apiUrl").value;
+  const key = document.getElementById("apiKey").value;
+  if (url) localStorage.setItem("bizdock_apiUrl", url);
+  if (key) localStorage.setItem("bizdock_apiKey", key);
+}
+
+function loadSettings() {
+  document.getElementById("apiUrl").value = localStorage.getItem("bizdock_apiUrl") || "";
+  document.getElementById("apiKey").value = localStorage.getItem("bizdock_apiKey") || "";
+}
+
+function switchScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+function goToStart() {
+  switchScreen("screen-start");
+  document.getElementById("stepIndicator").style.display = "none";
+  checked = {};
+  currentCatIdx = 0;
+}
+
+function startChecklist(type) {
+  saveSettings();
+  currentType = type;
+  checked = {};
+  currentCatIdx = 0;
+  renderStepIndicator();
+  renderCategoryPage();
+  switchScreen("screen-checklist");
+}
+
+function renderStepIndicator() {
+  const data = CHECKLISTS[currentType];
+  const indicator = document.getElementById("stepIndicator");
+  indicator.style.display = "flex";
+  let html = "";
+  data.categories.forEach((cat, i) => {
+    const cls = i === currentCatIdx ? "active" : (i < currentCatIdx ? "done" : "");
+    html += `<div class="step-dot ${cls}"></div>`;
+  });
+  const catInfo = CAT_DISPLAY[data.categories[currentCatIdx].name] || {};
+  const dept = catInfo.dept || data.categories[currentCatIdx].name;
+  html += `<div class="step-label">${dept}（${currentCatIdx + 1} / ${data.categories.length}）</div>`;
+  indicator.innerHTML = html;
+}
+
+function renderCategoryPage() {
+  const data = CHECKLISTS[currentType];
+  const cat = data.categories[currentCatIdx];
+  const catInfo = CAT_DISPLAY[cat.name] || { icon: "📋", dept: cat.name };
+  const container = document.getElementById("checklistContent");
+
+  let html = `<div class="category-page">`;
+  html += `<div class="category-page-header">
+    <div class="cat-icon">${catInfo.icon}</div>
+    <div><div class="cat-title">${catInfo.dept}</div><div class="cat-subtitle">${cat.items.length}項目</div></div>
+  </div>`;
+  html += `<div class="checklist-body">`;
+
+  cat.items.forEach((item, ii) => {
+    const key = `${currentCatIdx}-${ii}`;
+    const isChecked = checked[key] ? "checked" : "";
+    const hintHtml = item.hint
+      ? `<div class="hint-icon" onclick="event.stopPropagation(); toggleHint(this)">?<div class="hint-bubble">${item.hint}</div></div>`
+      : '';
+    html += `
+      <div class="check-item ${isChecked}" onclick="toggleCheck('${key}', this)">
+        <div class="checkbox">
+          <svg viewBox="0 0 16 16"><polyline points="3,8 7,12 13,4"/></svg>
+        </div>
+        <div class="question">${item.q}</div>
+        ${hintHtml}
+      </div>`;
+  });
+
+  html += `</div></div>`;
+  container.innerHTML = html;
+
+  const isFirst = currentCatIdx === 0;
+  const isLast = currentCatIdx === data.categories.length - 1;
+  document.getElementById("prevBtn").textContent = isFirst ? "タイプ選択に戻る" : "前へ";
+  document.getElementById("nextBtn").textContent = isLast ? "診断結果を見る" : "次へ";
+
+  renderStepIndicator();
+}
+
+function toggleHint(el) {
+  const wasActive = el.classList.contains('active');
+  document.querySelectorAll('.hint-icon.active').forEach(h => h.classList.remove('active'));
+  if (!wasActive) el.classList.add('active');
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.hint-icon')) {
+    document.querySelectorAll('.hint-icon.active').forEach(h => h.classList.remove('active'));
+  }
+});
+
+function toggleCheck(key, el) {
+  if (checked[key]) {
+    delete checked[key];
+    el.classList.remove("checked");
+  } else {
+    checked[key] = true;
+    el.classList.add("checked");
+  }
+}
+
+function prevCategory() {
+  if (currentCatIdx === 0) { goToStart(); }
+  else { currentCatIdx--; renderCategoryPage(); window.scrollTo(0, 0); }
+}
+
+function nextCategory() {
+  const data = CHECKLISTS[currentType];
+  if (currentCatIdx < data.categories.length - 1) {
+    currentCatIdx++;
+    renderCategoryPage();
+    window.scrollTo(0, 0);
+  } else { showResults(); }
+}
+
+// ============================================================
+// RESULTS
+// ============================================================
+function calcResults() {
+  const data = CHECKLISTS[currentType];
+  const catResults = data.categories.map((cat, ci) => {
+    let earned = 0, max = 0;
+    cat.items.forEach((item, ii) => {
+      max += item.pt;
+      if (checked[`${ci}-${ii}`]) earned += item.pt;
+    });
+    const catInfo = CAT_DISPLAY[cat.name] || { dept: cat.name };
+    return { name: cat.name, dept: catInfo.dept, earned, max, pct: max > 0 ? Math.round(earned / max * 100) : 0 };
+  });
+  const totalEarned = catResults.reduce((s, c) => s + c.earned, 0);
+  const totalMax = catResults.reduce((s, c) => s + c.max, 0);
+  const totalPct = totalMax > 0 ? Math.round(totalEarned / totalMax * 100) : 0;
+  const grade = GRADES.find(g => totalPct >= g.min);
+  return { catResults, totalEarned, totalMax, totalPct, grade };
+}
+
+function showResults() {
+  const res = calcResults();
+  document.getElementById("stepIndicator").style.display = "none";
+
+  document.getElementById("resultHero").innerHTML = `
+    <div class="grade-circle" style="border-color:${res.grade.color}">
+      <div class="grade-letter" style="color:${res.grade.color}">${res.grade.letter}</div>
+      <div class="grade-percent">${res.totalPct}%</div>
+    </div>
+    <h2>${res.grade.label}</h2>
+    <p>総合スコア：${res.totalEarned} / ${res.totalMax} 点</p>
+  `;
+
+  let barsHtml = "";
+  res.catResults.forEach((c, i) => {
+    const color = CATEGORY_COLORS[i % CATEGORY_COLORS.length];
+    barsHtml += `
+      <div class="category-result">
+        <div class="category-result-header">
+          <span class="name">${c.dept}</span>
+          <span class="score">${c.earned}/${c.max}点（${c.pct}%）</span>
+        </div>
+        <div class="bar-bg">
+          <div class="bar-fill" style="width:${c.pct}%;background:${color}">${c.pct}%</div>
+        </div>
+      </div>`;
+  });
+  document.getElementById("categoryBars").innerHTML = barsHtml;
+
+  renderRadarChart(res.catResults);
+  switchScreen("screen-result");
+  generateAIComment(res);
+}
+
+function renderRadarChart(catResults) {
+  const canvas = document.getElementById("radarChart");
+  if (window.radarChartInstance) window.radarChartInstance.destroy();
+
+  window.radarChartInstance = new Chart(canvas, {
+    type: "radar",
+    data: {
+      labels: catResults.map(c => c.dept),
+      datasets: [{
+        label: "スコア（%）",
+        data: catResults.map(c => c.pct),
+        backgroundColor: "rgba(76,189,208,.15)",
+        borderColor: "rgba(76,189,208,.8)",
+        borderWidth: 2,
+        pointBackgroundColor: "rgba(76,189,208,1)",
+        pointRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        r: {
+          beginAtZero: true, max: 100,
+          ticks: { stepSize: 20, font: { size: 10 } },
+          pointLabels: { font: { size: 11 } }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// ============================================================
+// AI COMMENT
+// ============================================================
+async function generateAIComment(res) {
+  const body = document.getElementById("aiCommentBody");
+  body.innerHTML = `<div class="ai-loading">AI診断コメントを生成中<span class="dots"></span></div>`;
+
+  const apiUrl = localStorage.getItem("bizdock_apiUrl");
+  const apiKey = localStorage.getItem("bizdock_apiKey");
+
+  if (!apiUrl || !apiKey) { body.innerHTML = generateLocalComment(res); return; }
+
+  const data = CHECKLISTS[currentType];
+  let detail = "";
+  res.catResults.forEach((c, ci) => {
+    detail += `\n【${c.dept}】${c.earned}/${c.max}点（${c.pct}%）\n`;
+    const yesItems = [], noItems = [];
+    data.categories[ci].items.forEach((item, ii) => {
+      if (checked[`${ci}-${ii}`]) yesItems.push(item.q); else noItems.push(item.q);
+    });
+    if (yesItems.length) detail += `  ○: ${yesItems.join("、")}\n`;
+    if (noItems.length) detail += `  ×: ${noItems.join("、")}\n`;
+  });
+
+  const prompt = `あなたは中小企業の経営コンサルタントです。以下の「会社の健康診断（BizDock）」の結果を分析し、経営者に向けた診断コメントを日本語で作成してください。
+
+## 診断タイプ
+${CHECKLISTS[currentType].name}
+
+## 総合結果
+評価: ${res.grade.letter}ランク（${res.totalPct}%）
+総合スコア: ${res.totalEarned} / ${res.totalMax} 点
+
+## カテゴリ別詳細
+${detail}
+
+## 出力フォーマット
+以下の構成で、具体的かつ前向きなトーンでコメントしてください：
+
+1. 【総合評価】全体の状態を2-3文で要約
+2. 【強み】特にスコアが高いカテゴリについて具体的に評価（2-3点）
+3. 【改善ポイント】スコアが低いカテゴリについて、優先度の高い順に具体的なアクションを提案（3-5点）
+4. 【次のステップ】今すぐ取り組める具体的なアクション（1-2点）
+
+※ 各項目は簡潔に、経営者が読みやすい文体でお願いします。`;
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ apiKey, model: "claude-sonnet-4-20250514", max_tokens: 1500, messages: [{ role: "user", content: prompt }] })
+    });
+    if (!response.ok) throw new Error(`API Error: ${response.status}`);
+    const result = await response.json();
+    body.textContent = result.content?.[0]?.text || result.text || "コメントの取得に失敗しました。";
+  } catch (e) {
+    console.error("AI API Error:", e);
+    body.innerHTML = generateLocalComment(res) +
+      `<div style="margin-top:12px;padding:10px;background:#fef2f2;border-radius:8px;font-size:.75rem;color:#991b1b;">※ Claude APIへの接続に失敗しました（${e.message}）。上記はローカル生成のコメントです。</div>`;
+  }
+}
+
+function generateLocalComment(res) {
+  const sorted = [...res.catResults].sort((a, b) => b.pct - a.pct);
+  const strengths = sorted.filter(c => c.pct >= 60).slice(0, 3);
+  const weaknesses = sorted.filter(c => c.pct < 60).reverse().slice(0, 3);
+
+  let comment = `【総合評価】\n総合スコアは${res.totalPct}%で、${res.grade.letter}ランクです。${res.grade.label}\n\n`;
+
+  if (strengths.length > 0) {
+    comment += `【強み】\n`;
+    strengths.forEach(c => { comment += `・${c.dept}（${c.pct}%）は良好な状態です。この調子で維持・向上を目指しましょう。\n`; });
+    comment += `\n`;
+  }
+
+  if (weaknesses.length > 0) {
+    comment += `【改善ポイント】\n`;
+    weaknesses.forEach(c => {
+      comment += `・${c.dept}（${c.pct}%）は改善の余地があります。`;
+      if (c.name.includes("経営方針")) comment += `まずは経営理念・ビジョン・バリューの言語化から始めることをお勧めします。`;
+      else if (c.name.includes("財務")) comment += `毎月の財務諸表の確認を習慣化し、資金繰りの見通しを立てましょう。`;
+      else if (c.name.includes("営業") || c.name.includes("マーケ")) comment += `ターゲット顧客の明確化と、新規獲得チャネルの拡充を検討しましょう。`;
+      else if (c.name.includes("組織") || c.name.includes("人材")) comment += `評価基準の明確化と、定期的な1on1ミーティングの実施を推奨します。`;
+      else if (c.name.includes("業務") || c.name.includes("プロセス")) comment += `業務マニュアルの整備とDXツールの導入を検討しましょう。`;
+      else if (c.name.includes("リスク") || c.name.includes("法令")) comment += `契約書の整備と専門家（税理士・弁護士）への相談を優先しましょう。`;
+      else if (c.name.includes("コミュニケーション")) comment += `連絡時の目的・期限・担当者の明確化を意識しましょう。`;
+      comment += `\n`;
+    });
+    comment += `\n`;
+  }
+
+  comment += `【次のステップ】\n`;
+  if (weaknesses.length > 0) {
+    comment += `まずは「${weaknesses[0].dept}」の改善に着手することをお勧めします。小さな一歩から始めて、着実に経営基盤を強化していきましょう。`;
+  } else {
+    comment += `各カテゴリのバランスが取れています。さらなる成長のために、各分野の深掘りを進めましょう。`;
+  }
+
+  if (!localStorage.getItem("bizdock_apiUrl")) {
+    comment += `\n\n※ AI設定を行うと、Claude AIによるより詳細な診断コメントが表示されます。`;
+  }
+  return comment;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener("DOMContentLoaded", loadSettings);
+</script>
+</body>
+</html>
