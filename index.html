@@ -534,8 +534,50 @@ body {
   #screen-start, #screen-checklist { display: none !important; }
 }
 </style>
+<style>
+#pw-gate{position:fixed;inset:0;background:linear-gradient(135deg,#4CBDD0,#2C3E50);display:flex;align-items:center;justify-content:center;z-index:99999;font-family:'Noto Sans JP',sans-serif;}
+#pw-gate .box{background:#fff;padding:40px 32px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:90%;max-width:360px;text-align:center;}
+#pw-gate h1{font-size:20px;margin:0 0 8px;color:#2C3E50;font-weight:700;}
+#pw-gate p{font-size:13px;color:#7f8c8d;margin:0 0 20px;}
+#pw-gate input{width:100%;padding:12px 14px;font-size:16px;border:2px solid #e0e5e7;border-radius:10px;box-sizing:border-box;outline:none;}
+#pw-gate input:focus{border-color:#4CBDD0;}
+#pw-gate button{width:100%;margin-top:12px;padding:12px;font-size:15px;font-weight:700;color:#fff;background:#4CBDD0;border:0;border-radius:10px;cursor:pointer;}
+#pw-gate button:hover{background:#3AA8BA;}
+#pw-gate .err{color:#e74c3c;font-size:13px;margin-top:10px;min-height:18px;}
+body.pw-locked{overflow:hidden;}
+body.pw-locked > *:not(#pw-gate){visibility:hidden;}
+</style>
 </head>
-<body>
+<body class="pw-locked">
+<div id="pw-gate">
+  <div class="box">
+    <h1>🔒 BizDock</h1>
+    <p>パスワードを入力してください</p>
+    <input type="password" id="pw-input" autofocus autocomplete="off" />
+    <div class="err" id="pw-err"></div>
+    <button id="pw-btn">入る</button>
+  </div>
+</div>
+<script>
+(function(){
+  var PW='prism0827';
+  var gate=document.getElementById('pw-gate');
+  var input=document.getElementById('pw-input');
+  var btn=document.getElementById('pw-btn');
+  var err=document.getElementById('pw-err');
+  function tryUnlock(){
+    if(input.value===PW){
+      document.body.classList.remove('pw-locked');
+      gate.remove();
+    }else{
+      err.textContent='パスワードが違います';
+      input.value='';input.focus();
+    }
+  }
+  btn.addEventListener('click',tryUnlock);
+  input.addEventListener('keydown',function(e){if(e.key==='Enter')tryUnlock();});
+})();
+</script>
 
 <div class="clipboard">
   <!-- HEADER -->
