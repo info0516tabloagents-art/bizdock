@@ -93,6 +93,25 @@ mark{background:var(--yellow);padding:0 4px;}
   padding:18px;
   border-radius:10px;
   margin-bottom:14px;
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+}
+.specialists .card .photo{
+  flex:0 0 96px;
+  width:96px;
+  height:96px;
+  border-radius:50%;
+  overflow:hidden;
+  background:var(--primary-light);
+  border:3px solid var(--primary-light);
+}
+.specialists .card .photo img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+.specialists .card .body{flex:1;min-width:0;}
+@media (max-width:480px){
+  .specialists .card{flex-direction:column;align-items:center;text-align:center;}
 }
 .card-label{font-size:13px;color:var(--primary);font-weight:700;margin:0;}
 .card-name{font-size:19px;font-weight:700;margin:6px 0;}
@@ -357,19 +376,28 @@ table.program tr:hover td:nth-child(2){background:#FAFEFF;}
   <div class="section specialists">
     <h2>3人の専門医が、あなたの会社を診断します</h2>
     <div class="card">
-      <p class="card-label">🩺 専門医【マネジメント・マーケティング科】</p>
-      <p class="card-name">安藤 啓佑（POTENTIAL LABO 代表）</p>
-      <p class="card-desc">オーダーメイドの研修提供事業を運営。<br>延べ<span class="num">1,500名以上</span>にビジネススキルトレーニングを提供。</p>
+      <div class="photo"><img src="images/ando.jpg" alt="安藤 啓佑"></div>
+      <div class="body">
+        <p class="card-label">🩺 専門医【マネジメント・マーケティング科】</p>
+        <p class="card-name">安藤 啓佑（POTENTIAL LABO 代表）</p>
+        <p class="card-desc">オーダーメイドの研修提供事業を運営。<br>延べ<span class="num">1,500名以上</span>にビジネススキルトレーニングを提供。</p>
+      </div>
     </div>
     <div class="card">
-      <p class="card-label">🩺 専門医【アカウンティング科】</p>
-      <p class="card-name">木股 葵（Acoun+ing Professionals）</p>
-      <p class="card-desc">マンツーマン指導の会計スクール運営。<br><span class="num">120社以上</span>の決算書から経営の実態を紐解く。</p>
+      <div class="photo"><img src="images/kimata.jpg" alt="木股 葵"></div>
+      <div class="body">
+        <p class="card-label">🩺 専門医【アカウンティング科】</p>
+        <p class="card-name">木股 葵（Acoun+ing Professionals）</p>
+        <p class="card-desc">マンツーマン指導の会計スクール運営。<br><span class="num">120社以上</span>の決算書から経営の実態を紐解く。</p>
+      </div>
     </div>
     <div class="card">
-      <p class="card-label">🩺 専門医【ファイナンス科】</p>
-      <p class="card-name">城間ヒガ パブロ正志（株式会社TABLO agents 代表）</p>
-      <p class="card-desc">国際資格<strong>CFP保有</strong>・金融コンサルティング会社運営。<br><span class="num">1,000件以上</span>の資産運用・資金コンサルティングに携わる。</p>
+      <div class="photo"><img src="images/pablo.jpg" alt="城間ヒガ パブロ正志"></div>
+      <div class="body">
+        <p class="card-label">🩺 専門医【ファイナンス科】</p>
+        <p class="card-name">城間ヒガ パブロ正志（株式会社TABLO agents 代表）</p>
+        <p class="card-desc">国際資格<strong>CFP保有</strong>・金融コンサルティング会社運営。<br><span class="num">1,000件以上</span>の資産運用・資金コンサルティングに携わる。</p>
+      </div>
     </div>
   </div>
 
@@ -468,6 +496,7 @@ table.program tr:hover td:nth-child(2){background:#FAFEFF;}
 
   <!-- FOOTER -->
   <div class="footer">
+    <img src="images/prism_logo.jpg" alt="PRISM" style="max-width:160px;background:#fff;padding:6px 10px;border-radius:6px;margin-bottom:10px;">
     <p class="brand">プリズム社（PRISM）</p>
     <p class="small">© 2026 PRISM. All rights reserved.</p>
   </div>
