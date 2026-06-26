@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>かいしゃの健康診断会｜2026年8月27日（木）名古屋・伏見｜プリズム社</title>
+<meta name="description" content="3人の専門家があなたの会社を丸ごと診断する3時間。経営診断ツールBizDockを使った7科の健康診断。2026年8月27日（木）名古屋・伏見開催。定員4名。">
+<meta property="og:title" content="かいしゃの健康診断会｜2026年8月27日（木）名古屋・伏見">
+<meta property="og:description" content="3人の専門家があなたの会社を丸ごと診断する3時間。お弁当付き・定員4名。">
+<meta property="og:type" content="website">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#4CBDD0;
+  --primary-dark:#3AA8BA;
+  --primary-light:#E8F7FA;
+  --primary-pale:#F2FBFC;
+  --accent:#2C3E50;
+  --danger:#E74C3C;
+  --warn:#F39C12;
+  --warn-bg:#FFF4E6;
+  --yellow:#FFF59D;
+  --gray-100:#f0f3f4;
+  --gray-300:#c8cfd2;
+  --gray-500:#7f8c8d;
+  --gray-700:#3d4f52;
+  --gray-900:#2C3E50;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:'Noto Sans JP',sans-serif;
+  color:var(--gray-900);
+  background:#fafbfc;
+  line-height:1.8;
+  font-size:16px;
+}
+.wrap{max-width:780px;margin:0 auto;background:#fff;box-shadow:0 0 40px rgba(0,0,0,.06);}
+.hero{
+  background:linear-gradient(135deg,#4CBDD0,#2C3E50);
+  color:#fff;
+  padding:50px 24px;
+  text-align:center;
+}
+.hero .lead{font-size:13px;letter-spacing:3px;margin:0;opacity:.9;}
+.hero h1{
+  font-size:36px;
+  font-weight:900;
+  margin:12px 0 16px;
+  line-height:1.3;
+  letter-spacing:2px;
+}
+.hero .sub{font-size:15px;margin:0;opacity:.95;}
+.hero .badge{
+  display:inline-block;
+  background:rgba(255,255,255,.2);
+  border:1px solid rgba(255,255,255,.5);
+  border-radius:24px;
+  padding:6px 18px;
+  font-size:13px;
+  font-weight:700;
+  margin-top:16px;
+}
+.section{padding:36px 24px;}
+.section h2{
+  color:var(--accent);
+  border-left:6px solid var(--primary);
+  padding-left:14px;
+  margin:0 0 20px;
+  font-size:22px;
+  line-height:1.5;
+}
+.intro{font-size:16px;line-height:2;}
+.check-list{font-size:16px;line-height:2.2;list-style:none;padding:0;}
+.check-list li::before{content:"✅ ";margin-right:6px;}
+hr{border:0;border-top:1px solid var(--gray-300);margin:0 24px;}
+.benefit{
+  background:var(--primary-pale);
+  padding:16px 18px;
+  border-radius:8px;
+  margin-bottom:12px;
+}
+.benefit-title{
+  font-size:18px;
+  color:var(--primary-dark);
+  font-weight:700;
+  margin:0 0 6px;
+}
+.benefit p{margin:0;}
+mark{background:var(--yellow);padding:0 4px;}
+.specialists .card{
+  border:2px solid var(--primary);
+  padding:18px;
+  border-radius:10px;
+  margin-bottom:14px;
+}
+.card-label{font-size:13px;color:var(--primary);font-weight:700;margin:0;}
+.card-name{font-size:19px;font-weight:700;margin:6px 0;}
+.card-desc{font-size:14px;margin:0;line-height:1.7;}
+.num{color:var(--danger);font-weight:700;}
+table.program{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+table.program td{
+  padding:11px 12px;
+  border:1px solid var(--gray-300);
+  vertical-align:top;
+}
+table.program tr:nth-child(odd) td:first-child{background:var(--primary-light);}
+table.program tr:nth-child(even) td:first-child{background:var(--primary-light);}
+table.program tr:nth-child(odd) td:nth-child(2){background:#fff;}
+table.program tr:nth-child(even) td:nth-child(2){background:#fff;}
+.cell-title{font-weight:700;width:36%;}
+.program-note{
+  background:var(--warn-bg);
+  padding:10px 14px;
+  border-radius:6px;
+  font-size:14px;
+  margin-bottom:14px;
+}
+.section-divider{
+  text-align:center;
+  font-weight:700;
+  color:var(--primary-dark);
+  background:var(--primary-pale)!important;
+}
+.ai-row td{background:var(--warn-bg)!important;}
+.ai-row .cell-title{color:#D35400;}
+table.summary{
+  width:100%;
+  border-collapse:collapse;
+  font-size:15px;
+}
+table.summary td{
+  padding:12px;
+  border:1px solid var(--gray-300);
+  vertical-align:top;
+}
+table.summary td:first-child{
+  background:var(--primary-light);
+  font-weight:700;
+  width:28%;
+}
+.big{font-size:18px;font-weight:700;color:var(--accent);}
+.huge{font-size:22px;font-weight:700;color:var(--danger);}
+.muted{font-size:13px;color:var(--gray-500);}
+.note-box{
+  background:var(--warn-bg);
+  border-left:6px solid var(--warn);
+  padding:16px 18px;
+  border-radius:4px;
+  margin:20px 0;
+}
+.note-box .title{font-weight:700;font-size:16px;color:#D35400;margin:0 0 8px;}
+.note-box p{margin:0;}
+.contact{
+  background:var(--primary-pale);
+  padding:22px;
+  border-radius:10px;
+}
+.contact p{margin:0 0 8px;}
+.contact a{color:var(--primary-dark);text-decoration:none;}
+.contact a:hover{text-decoration:underline;}
+.cta{
+  background:linear-gradient(135deg,#4CBDD0,#3AA8BA);
+  color:#fff;
+  text-align:center;
+  padding:30px 24px;
+  margin-top:30px;
+}
+.cta-btn{
+  display:inline-block;
+  background:#fff;
+  color:var(--accent);
+  font-weight:900;
+  font-size:18px;
+  padding:16px 40px;
+  border-radius:50px;
+  text-decoration:none;
+  margin:12px 6px;
+  box-shadow:0 6px 20px rgba(0,0,0,.15);
+  transition:transform .15s;
+}
+.cta-btn:hover{transform:translateY(-2px);}
+.cta-btn.outline{
+  background:transparent;
+  color:#fff;
+  border:2px solid #fff;
+}
+.cta p.small{font-size:13px;opacity:.9;margin:14px 0 0;}
+.footer{
+  background:var(--accent);
+  color:#fff;
+  text-align:center;
+  padding:26px 20px;
+  font-size:13px;
+}
+.footer .brand{font-size:16px;font-weight:700;margin:0 0 6px;}
+.footer .small{opacity:.7;font-size:12px;}
+.closing{
+  text-align:center;
+  font-size:17px;
+  font-weight:700;
+  color:var(--accent);
+  margin:24px 0 0;
+}
+@media (max-width:600px){
+  .hero{padding:36px 18px;}
+  .hero h1{font-size:26px;letter-spacing:1px;}
+  .section{padding:28px 18px;}
+  .section h2{font-size:19px;}
+  hr{margin:0 18px;}
+  table.program td,table.summary td{padding:9px;font-size:13px;}
+  .cta-btn{font-size:16px;padding:14px 28px;display:block;margin:10px 0;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <p class="lead">— 企業の未来を拓く —</p>
+    <h1>かいしゃの<br>健康診断会</h1>
+    <p class="sub">あなたの企業が、もっと成長する3時間。</p>
+    <div class="badge">2026年8月27日（木）｜名古屋・伏見</div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="section">
+    <p class="intro">
+      会社経営の土台、整っていますか？<br>
+      <strong>マーケティング・マネジメント・アカウンティング・ファイナンス</strong><br>
+      ——この4つの基本があってこそ、ビジネスは成り立ちます。<br><br>
+      本日は<strong>3人の専門家</strong>が、経営診断ツール「<strong>BizDock</strong>」を使って<br>
+      あなたの会社を"診察"します。<br>
+      3時間後、自社の<mark>「強み」と「伸びしろ」</mark>がクリアになって帰れます。
+    </p>
+  </div>
+
+  <hr>
+
+  <!-- PAIN POINTS -->
+  <div class="section">
+    <h2>こんなお悩み、ありませんか？</h2>
+    <ul class="check-list">
+      <li><strong>事業を大きく成長させたい</strong></li>
+      <li><strong>優秀な従業員が定着しない</strong></li>
+      <li><strong>利益率を上げたい</strong></li>
+      <li><strong>会社の資産を増やしたい</strong></li>
+    </ul>
+    <p>ひとつでも当てはまる方は、ぜひお越しください。</p>
+  </div>
+
+  <hr>
+
+  <!-- BENEFITS -->
+  <div class="section">
+    <h2>この健康診断会で得られる<span style="color:var(--danger);">3つのこと</span></h2>
+    <div class="benefit">
+      <p class="benefit-title">① 自社の"成長スタイル"がわかる</p>
+      <p>今の会社の状態をチェックリスト形式で見える化。<mark>「強み」と「伸びしろ」が一目でわかります。</mark></p>
+    </div>
+    <div class="benefit">
+      <p class="benefit-title">② 事業計画をブラッシュアップ</p>
+      <p>会計・財務・人材の視点から、計画を専門家と一緒に磨きます。</p>
+    </div>
+    <div class="benefit">
+      <p class="benefit-title">③ 経営の土台を整える</p>
+      <p>売上が伸びても崩れない、<mark>強い会社の"土台"</mark>の作り方を持ち帰れます。</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- PROGRAM -->
+  <div class="section">
+    <h2>当日のプログラム</h2>
+    <p class="program-note">
+      🩺 当日は経営診断ツール「<strong>BizDock</strong>」を使って、<strong>7つのカテゴリ</strong>を1つずつ一緒にチェックしていきます。<br>
+      各カテゴリでは、3人の専門家がそれぞれの視点から解説＆アドバイスをお届けします。
+    </p>
+    <table class="program">
+      <tr><td class="cell-title">オープニング</td><td>ご挨拶・本日の趣旨／BizDockの使い方</td></tr>
+      <tr><td class="cell-title">自己紹介</td><td>「なぜ今日参加したのか」を一人ずつシェア</td></tr>
+      <tr><td colspan="2" class="section-divider">🩺 BizDock 7科の健康診断</td></tr>
+      <tr><td class="cell-title">📋 ビジョン科</td><td><strong>経営方針・戦略</strong>　ビジョン・ミッション・戦略は明確か？経営の"北極星"をチェック。</td></tr>
+      <tr><td class="cell-title">💰 ファイナンス科</td><td><strong>財務・資金繰り</strong>　キャッシュフローは健全か？資金繰り・資産管理を診断。</td></tr>
+      <tr><td class="cell-title">📢 マーケティング科</td><td><strong>営業・マーケティング</strong>　集客・販売の仕組みは整っているか？顧客との関係性をチェック。</td></tr>
+      <tr><td class="cell-title">👥 マネジメント科</td><td><strong>組織・人材</strong>　採用・育成・評価の仕組みは？会社の"人"の健康状態を診断。</td></tr>
+      <tr><td class="cell-title">⚙️ オペレーション科</td><td><strong>業務プロセス・効率</strong>　マニュアル化・DX・情報共有の仕組みをチェック。</td></tr>
+      <tr><td class="cell-title">🛡️ コンプライアンス科</td><td><strong>リスク管理・法令遵守</strong>　契約書・保険・顧問体制など、会社の"守り"をチェック。</td></tr>
+      <tr><td class="cell-title">💬 コミュニケーション科</td><td>社内・社外の意思疎通は機能しているか？コミュニケーションの土台を診断。</td></tr>
+      <tr class="ai-row"><td class="cell-title">🤖 AI診断＆フィードバック</td><td>BizDockがAIで総合診断コメントを生成。3人の専門家からも個別アドバイス。</td></tr>
+      <tr><td class="cell-title">🍱 お弁当タイム</td><td>お弁当を食べながら、専門家・参加者と気軽にディスカッション。診断結果を見ながら個別相談もできます。</td></tr>
+      <tr><td class="cell-title">クロージング</td><td>本日の気づきをシェア。「明日からトライすること」を言語化して持ち帰ります。</td></tr>
+    </table>
+    <p class="muted" style="margin-top:6px;">※プログラムは当日の進行により多少前後する場合があります。</p>
+  </div>
+
+  <hr>
+
+  <!-- SPECIALISTS -->
+  <div class="section specialists">
+    <h2>3人の専門医が、あなたの会社を診断します</h2>
+    <div class="card">
+      <p class="card-label">🩺 専門医【マネジメント・マーケティング科】</p>
+      <p class="card-name">安藤 啓佑（POTENTIAL LABO 代表）</p>
+      <p class="card-desc">オーダーメイドの研修提供事業を運営。<br>延べ<span class="num">1,500名以上</span>にビジネススキルトレーニングを提供。</p>
+    </div>
+    <div class="card">
+      <p class="card-label">🩺 専門医【アカウンティング科】</p>
+      <p class="card-name">木股 葵（Acoun+ing Professionals）</p>
+      <p class="card-desc">マンツーマン指導の会計スクール運営。<br><span class="num">120社以上</span>の決算書から経営の実態を紐解く。</p>
+    </div>
+    <div class="card">
+      <p class="card-label">🩺 専門医【ファイナンス科】</p>
+      <p class="card-name">城間ヒガ パブロ正志（株式会社TABLO agents 代表）</p>
+      <p class="card-desc">国際資格<strong>CFP保有</strong>・金融コンサルティング会社運営。<br><span class="num">1,000件以上</span>の資産運用・資金コンサルティングに携わる。</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ABOUT PRISM -->
+  <div class="section">
+    <h2>主催「プリズム社」について</h2>
+    <div class="benefit">
+      <p style="font-size:16px;font-weight:700;color:var(--accent);margin:0 0 10px;">プリズム社は、<mark>"社長のためのピットインの場"</mark>です。</p>
+      <p style="margin:0;">
+        多くの社長が、日々の活動で走り続けています。<br>
+        その動きを一度<strong>プリズム社で止めて</strong>、現状把握 → 課題の明確化 → 改善のヒントを持って、また走り出してもらう。<br>
+        そんな場所をつくっています。<br><br>
+        <span class="muted">※ちなみにF1のピットインは、なんと2秒だそうです。</span>
+      </p>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SUMMARY -->
+  <div class="section">
+    <h2>開催概要</h2>
+    <table class="summary">
+      <tr>
+        <td>📅 日　時</td>
+        <td><span class="big">2026年8月27日（木）<br>10:00〜13:00</span><br><span class="muted">受付 9:45〜</span></td>
+      </tr>
+      <tr>
+        <td>📍 会　場</td>
+        <td>名古屋市中区栄2-2-1<br>広小路伏見中駒ビル6A（Grasp）<br><span class="muted">※地下鉄「伏見駅」4番出口より徒歩すぐ</span></td>
+      </tr>
+      <tr>
+        <td>💴 参加費</td>
+        <td><span class="huge">11,000円</span>（税込）　<mark>🍱お弁当付き</mark></td>
+      </tr>
+      <tr>
+        <td>👥 定　員</td>
+        <td><span class="huge">4名</span>（先着順）</td>
+      </tr>
+      <tr>
+        <td>🎯 対　象</td>
+        <td>創業・独立二期目以降の代表または役員の方<br>事業の成長を目指す方</td>
+      </tr>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- RECOMMEND -->
+  <div class="section">
+    <h2>こんな方におすすめ</h2>
+    <ul style="font-size:15px;line-height:1.9;">
+      <li>創業して数年経ち、<strong>次のステージに進みたい</strong>経営者</li>
+      <li>売上は立つが<strong>利益が残らない</strong>、と感じている方</li>
+      <li>人・お金・組織のバランスを<strong>一度プロに見てほしい</strong>方</li>
+      <li>少人数でじっくり相談できる場を探している方</li>
+    </ul>
+    <div class="note-box">
+      <p class="title">⚠ なぜ"少人数4名"なのか？</p>
+      <p>3人の専門家が、お一人おひとりの会社にしっかり向き合うために、<strong>あえて定員を絞っています。</strong><br>昼食（お弁当付き）をとりながら、専門家と直接相談できる<mark>"ぜいたくな3時間"</mark>です。</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- CONTACT -->
+  <div class="section">
+    <h2>お申込み・お問い合わせ</h2>
+    <div class="contact">
+      <p><strong>主催：</strong>プリズム社（PRISM）</p>
+      <p><strong>担当：</strong>城間</p>
+      <p><strong>TEL ：</strong><a href="tel:09065723844">090-6572-3844</a></p>
+      <p><strong>MAIL：</strong><a href="mailto:info-t@tabloagents.com">info-t@tabloagents.com</a></p>
+    </div>
+    <p class="closing">皆さまのご参加を、心よりお待ちしております！</p>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <p style="font-size:18px;font-weight:700;margin:0 0 6px;">定員4名・先着順です</p>
+    <p style="margin:0 0 10px;opacity:.9;">お早めにお申し込みください</p>
+    <a href="mailto:info-t@tabloagents.com?subject=【かいしゃの健康診断会】8/27参加申込&body=以下にご記入の上、送信してください。%0D%0A%0D%0Aお名前：%0D%0A会社名：%0D%0Aお電話番号：%0D%0Aご質問・ご要望（任意）：" class="cta-btn">📧 メールで申し込む</a>
+    <a href="tel:09065723844" class="cta-btn outline">📞 電話で申し込む</a>
+    <p class="small">※ こくちーずからもお申込みいただけます</p>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p class="brand">プリズム社（PRISM）</p>
+    <p class="small">© 2026 PRISM. All rights reserved.</p>
+  </div>
+
+</div>
+</body>
+</html>
